@@ -650,6 +650,27 @@ progress::-moz-progress-bar { border-radius: 99px; background: var(--accent); }
 .help-body a { display: inline-flex; align-items: center; gap: 5px; color: var(--accent); font-size: 10px; font-weight: 800; text-decoration: none; }
 .help-body code { padding: 2px 5px; border-radius: 5px; background: var(--surface); font-size: 9px; }
 
+.business-network-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.business-network-list article { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-2); }
+.business-network-head { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.business-network-head div { display: grid; gap: 3px; }
+.business-network-head strong { font-size: 13px; }
+.business-network-head small, .business-network-meta { color: var(--muted); font-size: 9px; }
+.business-network-head > span, .priority-badge, .process-badge { width: fit-content; padding: 4px 8px; border-radius: 999px; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); font-size: 9px; font-weight: 800; }
+.business-network-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.business-network-list p { display: flex; gap: 8px; margin: 0; font-size: 10px; line-height: 1.6; }
+.business-network-list p b { flex: 0 0 auto; color: var(--accent); }
+.work-progress-list { display: grid; gap: 7px; overflow-x: auto; }
+.work-progress-header, .work-progress-list article { display: grid; min-width: 820px; grid-template-columns: .75fr 2fr 1.15fr .75fr 1.3fr .5fr; gap: 10px; align-items: center; }
+.work-progress-header { padding: 0 11px 4px; color: var(--muted); font-size: 9px; font-weight: 800; }
+.work-progress-list article { padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); font-size: 10px; }
+.work-progress-list article strong { line-height: 1.5; }
+.process-badge.is-done { color: #58765a; background: #e5efe1; }
+.priority-badge { justify-self: start; }
+.priority-p0 { color: #b84832; background: #fbe5df; }
+.priority-p1 { color: #9a6644; background: #f7eadf; }
+.priority-p2 { color: #66717b; background: #e9edf0; }
+
 @media (max-width: 1100px) {
   .hero-card { grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); }
   .summary-grid { grid-template-columns: 1fr 1fr; }
@@ -716,6 +737,13 @@ progress::-moz-progress-bar { border-radius: 99px; background: var(--accent); }
   .sync-fields .full-field { grid-column: auto; }
   .editor-grid { grid-template-columns: 1fr; }
   .weather-editor { grid-template-columns: 1fr; }
+  .business-network-list { grid-template-columns: 1fr; }
+  .work-progress-list { overflow: visible; }
+  .work-progress-header { display: none; }
+  .work-progress-list article { min-width: 0; grid-template-columns: 1fr auto; gap: 8px 12px; }
+  .work-progress-list article > * { display: grid; grid-column: 1 / -1; grid-template-columns: 78px 1fr; gap: 8px; }
+  .work-progress-list article > *::before { content: attr(data-label); color: var(--muted); font-size: 9px; font-weight: 700; }
+  .work-progress-list article .priority-badge, .work-progress-list article .process-badge { width: 100%; border-radius: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
