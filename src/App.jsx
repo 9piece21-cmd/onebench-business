@@ -404,6 +404,7 @@ export function App() {
   )
 
   useEffect(() => {
+    if (!embeddedSeed && !localStorage.getItem(WORKSPACE_STORAGE_KEY)) return
     saveWorkspace(workspace)
   }, [])
 
