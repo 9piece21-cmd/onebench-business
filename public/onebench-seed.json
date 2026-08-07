@@ -4,13 +4,13 @@
     "id": "733e53dd-17c3-46f2-93a1-712d468b68ae",
     "name": "商务拓展工作台",
     "sourcePack": "sales",
-    "intent": "我是一名商务拓展专员，最想管理工作规划与客户整理",
+    "intent": "我是一名商务拓展专员，最想管理工作规划与客户整理、天气、重要倒计时和番茄专注",
     "profile": {
       "displayName": "朋友",
       "avatarId": "role"
     },
     "createdAt": "2026-08-07T04:13:44.561Z",
-    "updatedAt": "2026-08-07T04:13:44.564Z",
+    "updatedAt": "2026-08-07T04:28:00.000Z",
     "theme": {
       "id": "sales-copper",
       "name": "商务暖铜",
@@ -28,7 +28,7 @@
       {
         "id": "weather",
         "enabled": true,
-        "placement": "sidebar",
+        "placement": "home",
         "size": "small",
         "order": 1
       },
@@ -150,6 +150,20 @@
         "placement": "home",
         "size": "wide",
         "order": 18
+      },
+      {
+        "id": "countdown",
+        "enabled": true,
+        "placement": "home",
+        "size": "medium",
+        "order": 19
+      },
+      {
+        "id": "focus",
+        "enabled": true,
+        "placement": "home",
+        "size": "small",
+        "order": 20
       }
     ]
   },
