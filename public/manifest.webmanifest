@@ -1,14 +1,24 @@
 {
-  "name": "一句工作台",
-  "short_name": "一句工作台",
-  "description": "本地优先、可由 GitHub 配置同步的个人工作台。",
+  "id": "./",
+  "name": "商务拓展工作台",
+  "short_name": "商务工作台",
+  "description": "工作规划、客户整理与商务人脉管理，支持电脑和手机同步。",
   "lang": "zh-CN",
   "start_url": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "scope": "./",
   "background_color": "#fbf8f0",
-  "theme_color": "#633d61",
+  "theme_color": "#df704f",
+  "categories": ["business", "productivity"],
   "icons": [
     { "src": "icons/onebench-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/onebench-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "今日任务", "short_name": "任务", "url": "./#tasks", "icons": [{ "src": "icons/onebench-192.png", "sizes": "192x192" }] },
+    { "name": "商务人脉", "short_name": "人脉", "url": "./#business-network", "icons": [{ "src": "icons/onebench-192.png", "sizes": "192x192" }] },
+    { "name": "工作进度", "short_name": "进度", "url": "./#work-progress", "icons": [{ "src": "icons/onebench-192.png", "sizes": "192x192" }] }
   ]
 }
