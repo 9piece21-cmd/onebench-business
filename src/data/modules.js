@@ -68,6 +68,8 @@ const baseModuleCatalog = [
   { id: 'content-pipeline', name: '内容流水线', description: '选题、创作、发布与复盘', icon: Kanban, category: '职业' },
   { id: 'projects', name: '项目进度', description: '里程碑、阻塞与下一步', icon: CompassTool, category: '职业' },
   { id: 'clients', name: '客户管理', description: '客户、交付与回款节点', icon: AddressBook, category: '职业' },
+  { id: 'business-network', name: '商务人脉', description: '联系人、关系程度与下一步行动', icon: UsersThree, category: '职业', defaultSize: 'wide' },
+  { id: 'work-progress', name: '工作进度条', description: '工作项、产出、状态与优先级', icon: Kanban, category: '职业', defaultSize: 'wide' },
   { id: 'client-followup', name: '客户跟进', description: '沟通记录与下次跟进提醒', icon: PhoneCall, category: '职业' },
   { id: 'team', name: '团队节奏', description: '目标、1:1 与成员动态', icon: UsersThree, category: '职业' },
   { id: 'meetings', name: '会议与沟通', description: '会议、1:1 和待跟进事项', icon: UsersThree, category: '职业' },
@@ -142,6 +144,8 @@ const capabilityById = {
   medications: { kind: 'derived', dataBoundary: 'local-sensitive', maturity: 'beta' },
   diary: { kind: 'manual', dataBoundary: 'local-sensitive', maturity: 'stable' },
   finance: { kind: 'manual', dataBoundary: 'local-sensitive', maturity: 'beta' },
+  'business-network': { kind: 'manual', dataBoundary: 'local-sensitive', maturity: 'stable' },
+  'work-progress': { kind: 'manual', dataBoundary: 'local-sensitive', maturity: 'stable' },
 }
 
 export const moduleCatalog = baseModuleCatalog.map((module) => ({
