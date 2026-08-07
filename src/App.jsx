@@ -97,6 +97,7 @@ import {
   pushWorkspaceToGitHub,
 } from './lib/github'
 import { birthdayView, bookkeepingSummary, calculatePeriod, defaultWorkspaceData, getDailyQuote, loadWorkspaceData, saveWorkspaceData } from './lib/local-data'
+import { cloud, readCloudWorkspace, writeCloudWorkspace } from './lib/cloud-sync'
 import { buildAgentBriefing, fetchExchangeRates, fetchGitHubActivity, fetchRoleNews, fetchRssFeed, parseBookmarkHtml, parseIcsCalendar, shouldRunBriefing } from './lib/connectors'
 import { githubUser, pollGitHubDeviceFlow, startGitHubDeviceFlow } from './lib/github-oauth'
 import { injectStandalonePayload } from './lib/local-export'
@@ -360,6 +361,12 @@ export function App() {
   const [syncStatus, setSyncStatus] = useState('')
   const [oauthStatus, setOauthStatus] = useState('')
   const [syncing, setSyncing] = useState(false)
+  const [cloudUser, setCloudUser] = useState(null)
+  const [cloudEmail, setCloudEmail] = useState('')
+  const [cloudPassword, setCloudPassword] = useState('')
+  const [cloudStatus, setCloudStatus] = useState('正在检查登录状态…')
+  const cloudReadyRef = useRef(false)
+  const cloudTimerRef = useRef(null)
   const [marketEntries, setMarketEntries] = useState(() => [...(bundledRegistry.templates || []), ...(bundledRegistry.modules || [])])
   const [marketStatus, setMarketStatus] = useState(`已载入社区目录快照：${(bundledRegistry.templates || []).length} 个模板、${(bundledRegistry.modules || []).length} 个模块。`)
   const [marketQuery, setMarketQuery] = useState('')
@@ -472,6 +479,37 @@ export function App() {
   }, [panel])
 
   useEffect(() => {
+    let active = true
+    cloud.auth.getSession().then(({ data }) => {
+      if (!active) return
+      const user = data.session?.user || null
+      setCloudUser(user)
+      setCloudStatus(user ? `已登录：${user.email}` : '尚未登录，数据只保存在当前设备。')
+      if (user) hydrateFromCloud(user)
+    })
+    const { data: listener } = cloud.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
+      setCloudUser(session?.user || null)
+    })
+    return () => { active = false; listener.subscription.unsubscribe() }
+  }, [])
+
+  useEffect(() => {
+    if (!cloudUser || !cloudReadyRef.current) return undefined
+    window.clearTimeout(cloudTimerRef.current)
+    setCloudStatus('本机修改待同步…')
+    cloudTimerRef.current = window.setTimeout(async () => {
+      try {
+        await writeCloudWorkspace(cloudUser.id, { workspace, data: workspaceData })
+        setCloudStatus(`已自动同步 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`)
+      } catch (error) {
+        setCloudStatus(`同步失败：${error.message}`)
+      }
+    }, 900)
+    return () => window.clearTimeout(cloudTimerRef.current)
+  }, [workspace, workspaceData, cloudUser])
+
+  useEffect(() => {
     if (!workspace.modules.some((module) => module.id === 'news' && module.enabled)) return
     const refreshedAt = new Date(workspaceData.newsMeta?.updatedAt || 0).getTime()
     const refreshMinutes = Number(workspaceData.newsSettings?.autoRefreshMinutes) || 60
@@ -499,6 +537,67 @@ export function App() {
     const saved = saveWorkspaceData(targetWorkspace, next)
     setWorkspaceData(saved)
     return saved
+  }
+
+  async function hydrateFromCloud(user) {
+    setSyncing(true)
+    setCloudStatus('正在读取云端数据…')
+    try {
+      const record = await readCloudWorkspace(user.id)
+      if (record?.data?.workspace && record?.data?.data) {
+        const nextWorkspace = normalizeWorkspace(record.data.workspace)
+        persistWorkspace(nextWorkspace)
+        persistData(record.data.data, nextWorkspace)
+        setCloudStatus(`云端数据已载入 · ${new Date(record.updated_at).toLocaleString('zh-CN')}`)
+      } else {
+        await writeCloudWorkspace(user.id, { workspace, data: workspaceData })
+        setCloudStatus('当前电脑的数据已首次上传到云端。')
+      }
+      cloudReadyRef.current = true
+    } catch (error) {
+      setCloudStatus(`连接失败：${error.message}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  async function signInToCloud(event) {
+    event.preventDefault()
+    if (!cloudEmail.trim() || !cloudPassword) return setCloudStatus('请输入邮箱和密码。')
+    setSyncing(true)
+    setCloudStatus('正在登录…')
+    const { data, error } = await cloud.auth.signInWithPassword({ email: cloudEmail.trim(), password: cloudPassword })
+    if (error) {
+      setCloudStatus(`登录失败：${error.message}`)
+      setSyncing(false)
+      return
+    }
+    setCloudUser(data.user)
+    await hydrateFromCloud(data.user)
+  }
+
+  async function createCloudAccount() {
+    if (!cloudEmail.trim() || cloudPassword.length < 8) return setCloudStatus('请输入邮箱，并设置至少 8 位密码。')
+    setSyncing(true)
+    setCloudStatus('正在创建账号…')
+    const { data, error } = await cloud.auth.signUp({ email: cloudEmail.trim(), password: cloudPassword })
+    if (error) {
+      setCloudStatus(`创建失败：${error.message}`)
+    } else if (data.session && data.user) {
+      setCloudUser(data.user)
+      await hydrateFromCloud(data.user)
+    } else {
+      setCloudStatus('确认邮件已发送。请点击邮件中的链接，然后回来登录。')
+    }
+    setSyncing(false)
+  }
+
+  async function signOutFromCloud() {
+    cloudReadyRef.current = false
+    await cloud.auth.signOut()
+    setCloudUser(null)
+    setCloudPassword('')
+    setCloudStatus('已退出；本机副本仍然保留。')
   }
 
   function choosePack(nextPack) {
@@ -1423,7 +1522,8 @@ export function App() {
 
         <footer className="workbench-footer">
           <div><StackSimple weight="fill" /><span>OneBench</span></div>
-          <p>你的数据默认留在本机。需要时再开启私有同步。</p>
+          <p>{cloudUser ? `已登录 ${cloudUser.email} · ${cloudStatus}` : '数据默认留在本机；登录后可在电脑和手机间同步。'}</p>
+          <button type="button" onClick={() => setPanel('sync')}><CloudArrowUp /> 多端同步</button>
           <button type="button" onClick={() => setPanel('help')}>使用帮助 <ArrowRight /></button>
         </footer>
       </main>
@@ -1565,8 +1665,13 @@ export function App() {
 
             {panel === 'sync' && (
               <div className="drawer-body">
-                <div className="simple-callout"><LockKey weight="duotone" /><div><strong>默认不需要配置</strong><p>只在这台电脑用，直接下载 HTML 即可。只有需要手机和多台电脑同步时，才开启下面的高级方案。</p></div></div>
-                <div className="sync-levels"><article className="active"><span>1</span><div><strong>本机保存</strong><small>默认开启 · 不联网</small></div></article><article className={connection.owner && connection.repo ? 'active' : ''}><span>2</span><div><strong>配置同步</strong><small>主题、身份和模块</small></div></article><article className={connection.syncContent ? 'active' : ''}><span>3</span><div><strong>内容同步</strong><small>待办、记录和进度</small></div></article></div>
+                <div className="simple-callout"><CloudArrowUp weight="duotone" /><div><strong>电脑与手机自动同步</strong><p>两台设备登录同一个邮箱账号；本机仍保留离线副本，联网后自动上传最新修改。</p></div></div>
+                <div className="sync-levels"><article className="active"><span>1</span><div><strong>本机保存</strong><small>始终开启 · 可离线</small></div></article><article className={cloudUser ? 'active' : ''}><span>2</span><div><strong>账号登录</strong><small>{cloudUser ? '已连接' : '等待登录'}</small></div></article><article className={cloudUser && cloudReadyRef.current ? 'active' : ''}><span>3</span><div><strong>自动同步</strong><small>{cloudUser ? '修改后自动上传' : '待办、人脉和进度'}</small></div></article></div>
+                <section className="cloud-account-section">
+                  <div className="section-title-row"><div><h3>OneBench 云账号</h3><p>{cloudStatus}</p></div>{cloudUser && <button className="secondary-button compact-button" type="button" onClick={signOutFromCloud}>退出登录</button>}</div>
+                  {!cloudUser && <form className="cloud-login-form" onSubmit={signInToCloud}><label>邮箱<input type="email" autoComplete="email" value={cloudEmail} onChange={(event) => setCloudEmail(event.target.value)} placeholder="name@example.com" /></label><label>密码<input type="password" autoComplete="current-password" value={cloudPassword} onChange={(event) => setCloudPassword(event.target.value)} placeholder="至少 8 位" /></label><div className="sync-actions"><button className="primary-button" type="submit" disabled={syncing}><CloudArrowDown /> 登录并同步</button><button className="secondary-button" type="button" disabled={syncing} onClick={createCloudAccount}>创建账号</button></div></form>}
+                  {cloudUser && <div className="sync-actions"><button className="secondary-button" type="button" disabled={syncing} onClick={() => hydrateFromCloud(cloudUser)}><CloudArrowDown /> 立即读取云端</button><button className="primary-button" type="button" disabled={syncing} onClick={async () => { setSyncing(true); try { await writeCloudWorkspace(cloudUser.id, { workspace, data: workspaceData }); cloudReadyRef.current = true; setCloudStatus('当前电脑的数据已上传。') } catch (error) { setCloudStatus(`上传失败：${error.message}`) } finally { setSyncing(false) } }}><CloudArrowUp /> 立即上传本机</button></div>}
+                </section>
                 <section><h3>加密迁移包 · 不需要账号</h3><p className="section-copy">适合换电脑或手动备份。文件包含工作台配置和个人内容，使用 AES-GCM 在本机加密。</p><div className="backup-row"><input type="password" value={backupPassphrase} onChange={(event) => setBackupPassphrase(event.target.value)} placeholder="设置至少 8 位口令" /><button className="secondary-button" type="button" onClick={downloadEncryptedBackup}><DownloadSimple /> 下载备份</button><button className="secondary-button" type="button" onClick={() => backupInputRef.current?.click()}><CloudArrowDown /> 恢复备份</button><input ref={backupInputRef} className="visually-hidden" type="file" accept="application/json" onChange={restoreEncryptedBackup} /></div>{backupStatus && <p className="sync-status">{backupStatus}</p>}</section>
                 <section><div className="section-title-row"><div><h3>连接你自己的私有仓库</h3><p>{connection.lastSyncedAt ? `上次同步：${new Date(connection.lastSyncedAt).toLocaleString('zh-CN')}` : '尚未同步'}</p></div></div><div className="oauth-callout"><div><strong>推荐：GitHub 一键授权</strong><small>只有项目配置了 OAuth 客户端时可用；未配置时继续使用下面的 Fine-grained token。</small></div><button className="secondary-button" type="button" onClick={authorizeGitHub}><LockKey /> GitHub 授权</button></div>{oauthStatus && <p className="sync-status">{oauthStatus}</p>}<div className="sync-fields"><label>GitHub 用户名<input value={connection.owner} onChange={(event) => changeConnection('owner', event.target.value)} placeholder="你的 GitHub 用户名" /></label><label>私有仓库名<input value={connection.repo} onChange={(event) => changeConnection('repo', event.target.value)} placeholder="my-onebench-data" /></label><label className="full-field">Fine-grained token<input type="password" value={connection.token} onChange={(event) => changeConnection('token', event.target.value)} placeholder="只授予该私有仓库 Contents 读写权限" /></label></div><label className="check-line"><input type="checkbox" checked={connection.syncContent} onChange={(event) => changeConnection('syncContent', event.target.checked)} />同时同步个人待办、记录、头像和进度（仅限私有仓库）</label><div className="sync-actions"><button className="primary-button" type="button" disabled={syncing} onClick={pushToGitHub}><CloudArrowUp /> 保存到云端</button><button className="secondary-button" type="button" disabled={syncing} onClick={pullFromGitHub}><CloudArrowDown /> 从云端恢复</button></div>{syncStatus && <p className="sync-status">{syncStatus}</p>}</section>
               </div>

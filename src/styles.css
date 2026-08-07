@@ -638,6 +638,10 @@ progress::-moz-progress-bar { border-radius: 99px; background: var(--accent); }
 .sync-fields label { display: grid; gap: 6px; color: var(--muted); font-size: 9px; }
 .sync-fields input { padding: 11px; font-size: 10px; }
 .sync-fields .full-field { grid-column: span 2; }
+.cloud-login-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cloud-login-form label { display: grid; gap: 6px; color: var(--muted); font-size: 9px; }
+.cloud-login-form input { width: 100%; min-width: 0; padding: 11px; border: 1px solid var(--line); border-radius: 11px; outline: 0; color: var(--ink); background: var(--surface); font-size: 10px; }
+.cloud-login-form .sync-actions { grid-column: span 2; }
 .check-line { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 9px; line-height: 1.6; }
 .check-line input { accent-color: var(--accent); }
 .sync-status { margin: 0; color: var(--accent); font-size: 10px; line-height: 1.6; }
@@ -733,8 +737,9 @@ progress::-moz-progress-bar { border-radius: 99px; background: var(--accent); }
   .community-list article { grid-template-columns: 1fr; }
   .community-list aside { justify-content: space-between; }
   .sync-levels, .backup-row { grid-template-columns: 1fr; }
-  .sync-fields { grid-template-columns: 1fr; }
+  .sync-fields, .cloud-login-form { grid-template-columns: 1fr; }
   .sync-fields .full-field { grid-column: auto; }
+  .cloud-login-form .sync-actions { grid-column: auto; }
   .editor-grid { grid-template-columns: 1fr; }
   .weather-editor { grid-template-columns: 1fr; }
   .business-network-list { grid-template-columns: 1fr; }
