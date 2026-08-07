@@ -20,6 +20,8 @@
     {"id":"content-pipeline","name":"内容流水线","category":"职业","kind":"manual","dataBoundary":"local"},
     {"id":"projects","name":"项目进度","category":"职业","kind":"manual","dataBoundary":"local"},
     {"id":"clients","name":"客户管理","category":"职业","kind":"manual","dataBoundary":"local-sensitive"},
+    {"id":"business-network","name":"商务人脉","category":"职业","kind":"manual","dataBoundary":"local-sensitive"},
+    {"id":"work-progress","name":"工作进度条","category":"职业","kind":"manual","dataBoundary":"local-sensitive"},
     {"id":"client-followup","name":"客户跟进","category":"职业","kind":"manual","dataBoundary":"local-sensitive"},
     {"id":"team","name":"团队节奏","category":"职业","kind":"manual","dataBoundary":"local"},
     {"id":"meetings","name":"会议与沟通","category":"职业","kind":"manual","dataBoundary":"local"},
