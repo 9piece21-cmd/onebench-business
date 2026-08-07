@@ -485,7 +485,7 @@ export function App() {
       const user = data.session?.user || null
       setCloudUser(user)
       setCloudStatus(user ? `已登录：${user.email}` : '尚未登录，数据只保存在当前设备。')
-      if (user) hydrateFromCloud(user)
+      if (user) prepareCloudSync(user)
     })
     const { data: listener } = cloud.auth.onAuthStateChange((_event, session) => {
       if (!active) return
@@ -561,6 +561,26 @@ export function App() {
     }
   }
 
+  async function prepareCloudSync(user) {
+    setSyncing(true)
+    cloudReadyRef.current = false
+    setCloudStatus('正在检查云端数据…')
+    try {
+      const record = await readCloudWorkspace(user.id)
+      if (record?.data?.workspace && record?.data?.data) {
+        setCloudStatus('云端已有数据。为防止覆盖，请明确选择“立即上传本机”或“立即读取云端”。')
+      } else {
+        await writeCloudWorkspace(user.id, { workspace, data: workspaceData })
+        cloudReadyRef.current = true
+        setCloudStatus('当前设备的数据已首次上传，自动同步已开启。')
+      }
+    } catch (error) {
+      setCloudStatus(`连接失败：${error.message}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   async function signInToCloud(event) {
     event.preventDefault()
     if (!cloudEmail.trim() || !cloudPassword) return setCloudStatus('请输入邮箱和密码。')
@@ -573,7 +593,7 @@ export function App() {
       return
     }
     setCloudUser(data.user)
-    await hydrateFromCloud(data.user)
+    await prepareCloudSync(data.user)
   }
 
   async function createCloudAccount() {
