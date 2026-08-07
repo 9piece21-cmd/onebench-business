@@ -8,3 +8,9 @@ createRoot(document.getElementById("root")).render(
     <App />
   </React.StrictMode>,
 );
+
+requestAnimationFrame(() => {
+  const splash = document.getElementById("app-splash");
+  splash?.classList.add("done");
+  window.setTimeout(() => splash?.remove(), 280);
+});

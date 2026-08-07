@@ -375,6 +375,8 @@ export function App() {
   const [backupPassphrase, setBackupPassphrase] = useState('')
   const [backupStatus, setBackupStatus] = useState('')
   const [installPrompt, setInstallPrompt] = useState(null)
+  const [isOnline, setIsOnline] = useState(() => typeof navigator === 'undefined' ? true : navigator.onLine)
+  const [updateReady, setUpdateReady] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(() => !embeddedSeed && !(typeof localStorage !== 'undefined' && localStorage.getItem(WORKSPACE_STORAGE_KEY)))
   const [onboardingPackId, setOnboardingPackId] = useState('university')
   const [onboardingGoal, setOnboardingGoal] = useState('学习、待办和阶段目标')
@@ -464,15 +466,37 @@ export function App() {
 
   useEffect(() => {
     if (!import.meta.env.ONEBENCH_EXTENSION && !import.meta.env.ONEBENCH_STANDALONE && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined)
+      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then((registration) => {
+        if (registration.waiting) setUpdateReady(true)
+        registration.addEventListener('updatefound', () => {
+          const worker = registration.installing
+          worker?.addEventListener('statechange', () => {
+            if (worker.state === 'installed' && navigator.serviceWorker.controller) setUpdateReady(true)
+          })
+        })
+      }).catch(() => undefined)
     }
     const onInstall = (event) => {
       event.preventDefault()
       setInstallPrompt(event)
     }
     window.addEventListener('beforeinstallprompt', onInstall)
-    return () => window.removeEventListener('beforeinstallprompt', onInstall)
+    const onOnline = () => { setIsOnline(true); setToast('网络已恢复，云端同步会自动继续。') }
+    const onOffline = () => { setIsOnline(false); setToast('当前处于离线模式，修改仍会保存在本机。') }
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onInstall)
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
+    }
   }, [])
+
+  async function applyAppUpdate() {
+    const registration = await navigator.serviceWorker?.getRegistration()
+    registration?.waiting?.postMessage({ type: 'SKIP_WAITING' })
+    window.setTimeout(() => window.location.reload(), 300)
+  }
 
   useEffect(() => {
     if (panel) window.setTimeout(() => drawerRef.current?.focus(), 20)
@@ -1557,6 +1581,8 @@ export function App() {
       </nav>
 
       {toast && <button className="toast" type="button" onClick={() => setToast('')}><CheckCircle weight="fill" /><span>{toast}</span><X /></button>}
+      {!isOnline && <div className="app-status-banner offline" role="status">离线使用中 · 修改会保存在本机</div>}
+      {updateReady && <button className="app-status-banner update" type="button" onClick={applyAppUpdate}><ArrowClockwise /> 新版本已准备好，点击更新</button>}
 
       {panel && (
         <div className="drawer-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPanel(null) }}>
