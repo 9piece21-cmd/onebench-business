@@ -63,6 +63,11 @@ export function normalizeWorkspace(candidate) {
   for (const sharedId of sharedModuleIds) {
     if (!candidateModules.some((module) => module.id === sharedId)) candidateModules.push(moduleSettings(sharedId, candidateModules.length, candidate.sourcePack))
   }
+  if (candidate.sourcePack === 'sales') {
+    for (const moduleId of ['business-network', 'work-progress']) {
+      if (!candidateModules.some((module) => module.id === moduleId)) candidateModules.push({ ...moduleSettings(moduleId, candidateModules.length, candidate.sourcePack), placement: 'home', size: 'wide' })
+    }
+  }
   const isLegacyLayout = candidateModules.every((module) => !Object.hasOwn(module, 'placement'))
   if (isLegacyLayout && !candidateModules.some((module) => module.id === 'weather')) {
     candidateModules.splice(Math.min(2, candidateModules.length), 0, moduleSettings('weather', 2, candidate.sourcePack))
