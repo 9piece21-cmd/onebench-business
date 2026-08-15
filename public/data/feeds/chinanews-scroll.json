@@ -5,6 +5,13 @@
   "title": "中国新闻网",
   "items": [
     {
+      "id": "chinanews-scroll-https://www.chinanews.com.cn/gn/2026/08-16/10678440.shtml",
+      "title": "厄瓜多尔总统诺沃亚抵达北京 开启访华行程",
+      "meta": "中国新闻网 · 2026/8/15",
+      "url": "https://www.chinanews.com.cn/gn/2026/08-16/10678440.shtml",
+      "publishedAt": "2026-08-15T21:38:00.000Z"
+    },
+    {
       "id": "chinanews-scroll-https://www.chinanews.com.cn/sh/2026/08-16/10678439.shtml",
       "title": "河南清潩河鄢陵县仓头村段溃口实现成功合龙",
       "meta": "中国新闻网 · 2026/8/15",
@@ -206,15 +213,8 @@
       "meta": "中国新闻网 · 2026/8/15",
       "url": "https://www.chinanews.com.cn/sh/2026/08-15/10678406.shtml",
       "publishedAt": "2026-08-15T13:08:44.000Z"
-    },
-    {
-      "id": "chinanews-scroll-https://www.chinanews.com.cn/ty/2026/08-15/10678404.shtml",
-      "title": "世台联主席弗格森：中国已成斯诺克核心阵地",
-      "meta": "中国新闻网 · 2026/8/15",
-      "url": "https://www.chinanews.com.cn/ty/2026/08-15/10678404.shtml",
-      "publishedAt": "2026-08-15T13:04:06.000Z"
     }
   ],
-  "updatedAt": "2026-08-15T20:39:10.786Z",
+  "updatedAt": "2026-08-15T22:37:26.997Z",
   "provider": "OneBench 公共资讯快照"
 }

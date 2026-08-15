@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-15T20:39:10.786Z",
-  "expiresAt": "2026-08-16T02:39:10.786Z",
+  "generatedAt": "2026-08-15T22:37:26.997Z",
+  "expiresAt": "2026-08-16T04:37:26.997Z",
   "provider": "OneBench 公共资讯快照",
   "sources": [
     {
@@ -31,6 +31,24 @@
     }
   ],
   "items": [
+    {
+      "id": "chinanews-scroll-https://www.chinanews.com.cn/gn/2026/08-16/10678440.shtml",
+      "title": "厄瓜多尔总统诺沃亚抵达北京 开启访华行程",
+      "category": "综合",
+      "summary": "今天(16日)早晨，厄瓜多尔共和国总统丹尼尔·罗伊－希尔克里斯特·诺沃亚·阿辛抵达北京，开始为期8天的访华行程。此访是诺沃亚总统首次对中国进行国事访问。",
+      "source": "中国新闻网",
+      "sourceId": "chinanews-scroll",
+      "url": "https://www.chinanews.com.cn/gn/2026/08-16/10678440.shtml",
+      "publishedAt": "2026-08-15T21:38:00.000Z",
+      "tags": [
+        "国内",
+        "社会",
+        "财经",
+        "教育",
+        "健康"
+      ],
+      "hot": false
+    },
     {
       "id": "chinanews-scroll-https://www.chinanews.com.cn/sh/2026/08-16/10678439.shtml",
       "title": "河南清潩河鄢陵县仓头村段溃口实现成功合龙",
@@ -544,24 +562,6 @@
       "sourceId": "chinanews-scroll",
       "url": "https://www.chinanews.com.cn/sh/2026/08-15/10678406.shtml",
       "publishedAt": "2026-08-15T13:08:44.000Z",
-      "tags": [
-        "国内",
-        "社会",
-        "财经",
-        "教育",
-        "健康"
-      ],
-      "hot": false
-    },
-    {
-      "id": "chinanews-scroll-https://www.chinanews.com.cn/ty/2026/08-15/10678404.shtml",
-      "title": "世台联主席弗格森：中国已成斯诺克核心阵地",
-      "category": "综合",
-      "summary": "中新网太原8月15日电 (记者 胡健)“中国已经成为斯诺克的全球核心阵地，27年前我就这样预言过。我们必须感谢中国，是中国让斯诺克运动迈入新的发展阶段。”世界职业比利与斯诺克协会(简称“世台联”)主席杰森·弗格森15日在山西太原说。",
-      "source": "中国新闻网",
-      "sourceId": "chinanews-scroll",
-      "url": "https://www.chinanews.com.cn/ty/2026/08-15/10678404.shtml",
-      "publishedAt": "2026-08-15T13:04:06.000Z",
       "tags": [
         "国内",
         "社会",
